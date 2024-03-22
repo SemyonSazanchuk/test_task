@@ -1,0 +1,33 @@
+services:
+  redis:
+    image: 'bitnami/redis:latest'
+    hostname: redis
+    environment:
+      - ALLOW_EMPTY_PASSWORD=yes
+    ports:
+      - "${EXPOSED_REDIS_PORT}:${REDIS_PORT}"
+    networks:
+      - app-network
+    volumes:
+      - "redis_data:/bitnami/redis"    
+  backend:
+    build:
+      context: ..
+      dockerfile: deployment/Dockerfile
+    environment:
+      APP_HOST: ${APP_HOST}
+      APP_PORT: ${APP_PORT}
+      REDIS_HOST: ${REDIS_HOST}
+      REDIS_PORT: ${REDIS_PORT}
+    ports:
+      - "${EXPOSED_APP_PORT}:${APP_PORT}"
+    networks:
+      - app-network
+    depends_on:
+      - redis
+
+networks:
+  app-network:
+
+volumes:
+  redis_data:
